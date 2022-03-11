@@ -17,6 +17,14 @@ class StatusPage extends StatelessWidget {
               )
             ]),
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.message),
+        onPressed: (){
+          print("Ha sido presionado");
+          socketService.socket.emit('emitir-mensaje', {'name':"Francisco", 'message': "Hola Wily"});
+        },
+
+      ),
     );
   }
 }

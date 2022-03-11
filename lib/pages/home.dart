@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:band_names/models/band.dart';
+import 'package:provider/provider.dart';
+import 'package:band_names/services/socket_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -9,21 +11,57 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Band> bands = [
-    Band(id: '1', name: 'Metalica', votes: 5),
+   List<Band> bands = [
+   /*  Band(id: '1', name: 'Metalica', votes: 5),
     Band(id: '2', name: 'Queen', votes: 8),
     Band(id: '3', name: 'Hèros del silencio', votes: 11),
     Band(id: '4', name: 'Enanos Verdes', votes: 8),
-    Band(id: '5', name: 'Bon Jovi', votes: 9),
-  ];
+    Band(id: '5', name: 'Bon Jovi', votes: 9), */
+  ]; 
+
+@override
+  void initState() {
+       final socketService = Provider.of<SocketService>(context, listen: false);
+
+       socketService.socket.on('active-bands', (payload){
+         print(payload);
+
+         this.bands = (payload  as List).map((band) => Band.fromMap(band)).toList();
+
+         setState(() {
+           
+         });
+       });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    final socketService = Provider.of<SocketService>(context, listen: false);
+    socketService.socket.off('active-bands');
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final socketService = Provider.of<SocketService>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Band Names", style: TextStyle(color: Colors.black87)),
         backgroundColor: Colors.white,
         elevation: 1,
+        actions: [
+          Container(
+            margin: EdgeInsets.only(right: 50),
+            child: 
+        // ignore: unrelated_type_equality_checks
+       (socketService.serverStatus == ServerStatus.Online )  
+           ?  Icon(Icons.check_circle, color:Colors.blue[300])
+           : Icon(Icons.offline_bolt, color:Colors.red)
+          )
+        ],
       ),
       body: ListView.builder(
           itemCount: bands.length,
@@ -106,7 +144,7 @@ class _HomePageState extends State<HomePage> {
                   child: Text('Add'),
                   onPressed: () => addBandToList(textController.text)),
               CupertinoDialogAction(
-                  isDefaultAction: true,
+                  isDestructiveAction: true,
                   child: Text('Dissmiss'),
                   onPressed: () => Navigator.pop(context))
             ],
