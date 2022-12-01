@@ -1,6 +1,6 @@
 # band_names
 
-A new Flutter project.
+Aplicación que consume un back de node, y la sincronizacion de la información es tiempo real
 
 ## Getting Started
 
